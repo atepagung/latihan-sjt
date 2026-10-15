@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Latihan SJT ASN</title>
+  <meta name="description" content="Latihan Situational Judgement Test untuk ASN, bisa dipakai offline.">
+  <meta name="theme-color" content="#0F4C81" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#171C22" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/style.css">
+  <script>
+    // Pasang tema dan ukuran teks sebelum halaman digambar, supaya layar tidak berkedip.
+    // try/catch karena localStorage bisa diblokir atau isinya rusak.
+    try {
+      var saved = JSON.parse(localStorage.getItem('sjt.v1'));
+      var settings = (saved && saved.settings) || {};
+      if (settings.theme === 'light' || settings.theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', settings.theme);
+      }
+      if (settings.textSize === 'large') {
+        document.documentElement.setAttribute('data-text-size', 'large');
+      }
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div id="update-banner" class="update-banner" hidden>
+    <span>Versi baru tersedia</span>
+    <button type="button" class="btn btn-small">Muat ulang</button>
+  </div>
+
+  <main id="app" class="container" tabindex="-1">
+    <p class="loading">Memuat…</p>
+  </main>
+
+  <dialog id="dialog" class="dialog" aria-labelledby="dialog-title"></dialog>
+
+  <div id="toast" class="toast-container" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p class="container">Aplikasi ini membutuhkan JavaScript. Aktifkan JavaScript di pengaturan browser.</p>
+  </noscript>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
