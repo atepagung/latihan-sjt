@@ -6,15 +6,31 @@ import { categoryChip, progressBar, scoreBadge, srOnly, tag } from './common.js'
 // Huruf di layar mengikuti posisi tampil, bukan kode asli di JSON
 const LETTERS = ['A', 'B', 'C', 'D'];
 
+// Ikon bintang dari SVG, supaya bentuknya sama di semua HP (simbol ★ dari font bisa berbeda-beda).
+// Elemen SVG harus dibuat dengan createElementNS, karena el() hanya untuk elemen HTML.
+function starIcon() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', 'bookmark-icon');
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', 'M12 2.8l2.84 5.76 6.36.92-4.6 4.49 1.09 6.33L12 17.3l-5.69 3 1.09-6.33-4.6-4.49 6.36-.92z');
+  svg.append(path);
+  return svg;
+}
+
+// Tombol tandai: ikon bintang dan tulisan, supaya fungsinya jelas tanpa harus menebak arti simbol.
+// Nama untuk pembaca layar tetap "Tandai soal"; statusnya dibacakan lewat aria-pressed.
 function bookmarkButton(bookmarked, onToggle) {
   return el('button', {
     type: 'button',
-    class: 'icon-btn bookmark',
+    class: 'bookmark-btn',
     'aria-pressed': String(bookmarked),
     'aria-label': 'Tandai soal',
     'data-focus': 'bookmark',
     onclick: onToggle,
-  }, bookmarked ? '★' : '☆');
+  }, starIcon(), el('span', { class: 'bookmark-text' }, bookmarked ? 'Ditandai' : 'Tandai'));
 }
 
 function sessionTop({ session, question, bookmarked, remaining, handlers }) {

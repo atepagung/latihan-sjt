@@ -19,6 +19,10 @@
   --score-1: #B3261E;
   /* Warna teks di atas lencana skor dan tombol merah */
   --on-score: #FFFFFF;
+  /* Tombol tandai soal saat aktif */
+  --bookmark-bg: #FFF4D6;
+  --bookmark-border: #C78A00;
+  --bookmark-text: #6B4700;
   --danger: var(--score-1);
   --shadow: 0 1px 3px rgba(15, 19, 24, 0.08);
   --radius: 12px;
@@ -42,6 +46,9 @@
   --score-2: #F0B260;
   --score-1: #F2847C;
   --on-score: #0F1318;
+  --bookmark-bg: #2E2610;
+  --bookmark-border: #FFC43D;
+  --bookmark-text: #FFD978;
   --shadow: none;
   color-scheme: dark;
 }
@@ -61,6 +68,9 @@
     --score-2: #F0B260;
     --score-1: #F2847C;
     --on-score: #0F1318;
+  --bookmark-bg: #2E2610;
+  --bookmark-border: #FFC43D;
+  --bookmark-text: #FFD978;
     --shadow: none;
     color-scheme: dark;
   }
@@ -734,25 +744,51 @@ textarea {
   font-weight: 600;
 }
 
-.icon-btn {
+/* Tombol tandai soal: ikon bintang + tulisan.
+   Belum ditandai: garis bintang saja. Ditandai: bintang kuning terisi di latar kuning muda,
+   tulisan cokelat tua supaya kontrasnya tetap di atas 4,5:1 (kuning murni di atas putih terlalu pucat). */
+.bookmark-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  min-height: 48px;
+  padding: 6px 14px 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--surface);
-  color: var(--muted);
-  font-size: 1.5rem;
-  line-height: 1;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.bookmark[aria-pressed="true"] {
-  border-color: var(--accent);
-  color: var(--accent);
+.bookmark-icon {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: transform 0.2s;
+}
+
+.bookmark-btn[aria-pressed="true"] {
+  border-color: var(--bookmark-border);
+  background: var(--bookmark-bg);
+  color: var(--bookmark-text);
+}
+
+.bookmark-btn[aria-pressed="true"] .bookmark-icon {
+  fill: var(--accent);
+  stroke: var(--bookmark-border);
+  transform: scale(1.1);
+}
+
+.bookmark-btn:active .bookmark-icon {
+  transform: scale(0.85);
 }
 
 .session-tools {
