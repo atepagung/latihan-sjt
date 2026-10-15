@@ -10,7 +10,7 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 | 3 Layar dan alur lengkap | selesai | 2026-10-15 | semua layar dan alur jalan, Lampiran A Fungsi dan Tampilan diuji di browser bawaan, selftest 26/26 |
 | 4 Mode offline dan pembaruan | selesai | 2026-10-15 | `validate.py --http` lolos tanpa peringatan; uji service worker sungguhan menunggu checkpoint di Chrome |
 | 5 Uji lokal lengkap | selesai | 2026-10-15 | tinjauan Lampiran A + cek kontras, 5 perbaikan, siap rilis 1.0.0 |
-| 6 Publikasi GitHub Pages | belum | | |
+| 6 Publikasi GitHub Pages | selesai | 2026-10-15 | terbit di GitHub Pages, 23 file APP_SHELL status 200 dan isinya sama dengan lokal, service worker aktif |
 | 7 Pasang di HP | belum | | Dikerjakan pengguna |
 
 ## Info lingkungan
@@ -25,7 +25,8 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 ## Alamat aplikasi
 
 - Lokal: http://localhost:8080
-- GitHub Pages: (diisi di Fase 6)
+- GitHub Pages: https://atepagung.github.io/latihan-sjt/
+- Repo: https://github.com/atepagung/latihan-sjt (publik, cabang `main`, Pages dari `/ (root)`)
 
 ## Catatan dan keputusan
 
@@ -115,5 +116,16 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
      Sekarang "Terbaik" berlatar hijau penuh dan skor di umpan balik memakai lencana. Semua pasangan
      lain lolos 4,5:1 di kedua tema. Warna §1.7 tidak diubah.
   - Perbaikan tetap di versi 1.0.0 karena aplikasi belum pernah diterbitkan.
-- Langkah berikutnya: Fase 6 (publikasi GitHub Pages). Setelah rilis pertama, setiap perubahan file yang
-  di-cache wajib diikuti `py tools/bump_version.py patch` sebelum push.
+- Fase 6:
+  - `gh` tidak terpasang. Repo dibuat pengguna lewat browser (publik, kosong), lalu remote `origin`
+    ditambahkan dan `main` di-push. Pages diaktifkan pengguna: Deploy from a branch, `main`, `/ (root)`.
+  - Diperiksa: semua 23 entri `APP_SHELL` berstatus 200 di GitHub Pages dan isinya sama byte-per-byte
+    dengan lokal. Di browser bawaan aplikasi tampil tanpa error, service worker `activated`, cache
+    `sjt-v1.0.0` berisi 23 file, dan chip "Siap offline" muncul. Browser bawaan Claude Code mendukung
+    service worker di HTTPS, tetapi tidak di localhost.
+  - Email di commit (agungteja64@gmail.com) dibiarkan terlihat publik atas pilihan pengguna.
+- Rilis 1.0.0 sudah terbit. Mulai sekarang setiap perubahan file yang di-cache (isi `APP_SHELL`) wajib
+  diikuti `py tools/bump_version.py patch` (atau `minor` untuk fitur baru) sebelum push. Tanpa itu HP
+  tetap memakai versi lama. Perubahan pada `PROGRESS.md`, `PLAYBOOK.md`, `dev/`, dan `tools/` tidak
+  memerlukan kenaikan versi.
+- Langkah berikutnya: Fase 7 (pasang di HP, dikerjakan pengguna).
