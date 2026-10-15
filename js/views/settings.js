@@ -21,10 +21,11 @@ export function renderStatusInfo(status) {
 }
 
 export function renderSettings({ settings, version, bank, status, handlers }) {
-  // Input file disembunyikan; tombol "Impor progres" yang membukanya supaya tampilannya seragam
+  // Input file disembunyikan; tombol "Impor progres" yang membukanya supaya tampilannya seragam.
+  // Sengaja tanpa atribut accept: di Android, file .json dari Google Drive atau WhatsApp sering
+  // dikenali sebagai tipe lain sehingga tidak bisa dipilih. Isi file tetap diperiksa sebelum diimpor.
   const fileInput = el('input', {
     type: 'file',
-    accept: 'application/json,.json',
     class: 'visually-hidden',
     tabindex: '-1',
     'aria-hidden': 'true',

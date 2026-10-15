@@ -160,11 +160,22 @@ textarea {
 }
 
 /* ---------- Tata letak ---------- */
+/* env(safe-area-inset-*) bernilai 0 di browser biasa. Saat aplikasi terpasang dan Chrome Android
+   menggambar sampai ke balik status bar atau poni layar, nilainya berisi tinggi area itu,
+   sehingga judul tidak tertutup. */
 .container {
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
-  padding: 16px 16px 32px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: 32px;
+  padding-left: max(16px, env(safe-area-inset-left));
+}
+
+/* Bila banner pembaruan tampil, banner itu yang sudah memberi jarak status bar */
+.update-banner:not([hidden]) + .container {
+  padding-top: 16px;
 }
 
 .screen-header {
@@ -987,23 +998,27 @@ textarea {
   color: var(--primary);
 }
 
+/* Latar hijau penuh: tulisan hijau di atas latar hijau muda kontrasnya kurang dari 4,5:1 di tema terang */
 .tag-best {
   border: 1px solid var(--score-4);
-  color: var(--score-4);
+  background: var(--score-4);
+  color: var(--on-score);
 }
 
 .feedback-score {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.feedback-score .score-badge {
+  min-width: 34px;
+  height: 34px;
   font-size: 1.1rem;
 }
-
-.feedback-score strong {
-  font-size: 1.3rem;
-}
-
-.feedback-score.s4 strong { color: var(--score-4); }
-.feedback-score.s3 strong { color: var(--score-3); }
-.feedback-score.s2 strong { color: var(--score-2); }
-.feedback-score.s1 strong { color: var(--score-1); }
 
 /* ---------- Daftar soal (simulasi) ---------- */
 .grid-legend {

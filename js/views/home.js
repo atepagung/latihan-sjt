@@ -20,7 +20,8 @@ function activeCard(active, { onResume, onEndActive }) {
       el('strong', {}, MODE_LABELS[active.mode]),
       ` · Soal ${active.index + 1} dari ${total}`,
     ),
-    left !== null ? el('p', { class: 'muted' }, `Sisa waktu ${formatDuration(left)}`) : null,
+    // data-timer: angka ini diperbarui setiap detik oleh pengatur waktu di app.js
+    left !== null ? el('p', { class: 'muted' }, 'Sisa waktu ', el('span', { 'data-timer': '' }, formatDuration(left))) : null,
     el('div', { class: 'btn-row' },
       el('button', { type: 'button', class: 'btn btn-primary', onclick: onResume }, 'Lanjutkan'),
       el('button', { type: 'button', class: 'btn btn-secondary', onclick: onEndActive }, 'Akhiri'),

@@ -192,9 +192,12 @@ function refreshSession(focusKey) {
   if (target) target.focus({ preventScroll: true });
 }
 
-// Mode latihan: jawaban langsung terkunci, dinilai, dan dicatat ke riwayat soal
+// Mode latihan: jawaban langsung terkunci, dinilai, dan dicatat ke riwayat soal.
+// Setiap aksi di layar soal mengecek dulu sesi masih ada, karena ketukan ganda yang cepat bisa
+// tiba setelah sesi diselesaikan oleh ketukan pertama.
 function answerPractice(kode) {
   const active = store.getState().active;
+  if (!active) return;
   const question = currentQuestion(active);
   if (active.revealed[question.id]) return;
   const skor = scoreOf(question, kode);
@@ -209,6 +212,7 @@ function answerPractice(kode) {
 // Mode simulasi: jawaban boleh diganti, belum dinilai
 function selectOption(kode) {
   const active = store.getState().active;
+  if (!active) return;
   const question = currentQuestion(active);
   active.answers[question.id] = kode;
   store.setActive(active);
@@ -225,6 +229,7 @@ function goTo(index) {
 
 function goNext() {
   const active = store.getState().active;
+  if (!active) return;
   if (active.index < active.ids.length - 1) {
     goTo(active.index + 1);
   } else {
@@ -234,6 +239,7 @@ function goNext() {
 
 function toggleBookmark() {
   const active = store.getState().active;
+  if (!active) return;
   const marked = store.toggleBookmark(currentQuestion(active).id);
   showToast(marked ? 'Soal ditandai' : 'Tanda soal dihapus');
   refreshSession('bookmark');
@@ -241,6 +247,7 @@ function toggleBookmark() {
 
 function openQuestionGrid() {
   const active = store.getState().active;
+  if (!active) return;
   showDialog({
     title: 'Daftar soal',
     content: views.renderQuestionGrid({
@@ -255,6 +262,7 @@ function openQuestionGrid() {
 
 async function confirmFinishSimulation() {
   const active = store.getState().active;
+  if (!active) return;
   const empty = active.ids.length - answeredCount(active);
   const ok = await confirmDialog({
     title: 'Selesaikan simulasi?',
@@ -331,6 +339,7 @@ function handleExpiredSimulation() {
 
 async function endActiveFromHome() {
   const active = store.getState().active;
+  if (!active) return;
   const ok = await confirmDialog({
     title: 'Akhiri sesi?',
     message: active.mode === 'simulasi'
@@ -463,6 +472,8 @@ function showHome() {
       onStartBookmarks: startBookmarks,
     },
   }));
+  // Sisa waktu simulasi di kartu "Lanjutkan sesi" ikut berjalan, dan sesi selesai sendiri bila waktu habis
+  startTimer();
 }
 
 function showSessionScreen() {

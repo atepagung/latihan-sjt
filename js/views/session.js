@@ -102,7 +102,9 @@ function optionButton({ option, letter, isSimulation, chosen, revealed, onAnswer
 function feedback(question, chosen) {
   const skor = scoreOf(question, chosen);
   return el('div', { class: 'feedback' },
-    el('p', { class: `feedback-score s${skor}` }, 'Skor Anda ', el('strong', {}, `${skor} dari ${MAX_SCORE}`)),
+    // Angka skor di lencana berwarna (kontrasnya cukup), teks lainnya warna biasa
+    el('p', { class: 'feedback-score' },
+      'Skor Anda ', el('span', { class: `score-badge s${skor}` }, String(skor)), ` dari ${MAX_SCORE}`),
     el('section', { class: 'card explanation', 'aria-labelledby': 'explanation-title' },
       el('h2', { id: 'explanation-title' }, 'Pembahasan'),
       el('p', {}, question.pembahasan),

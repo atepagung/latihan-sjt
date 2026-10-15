@@ -9,7 +9,7 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 | 2 Data, skor, penyimpanan, selftest | selesai | 2026-10-15 | selftest 22/22 PASS (browser dan Node), Beranda 151 soal (KMK 36, AKH 50, MNJ 56, SK 9) |
 | 3 Layar dan alur lengkap | selesai | 2026-10-15 | semua layar dan alur jalan, Lampiran A Fungsi dan Tampilan diuji di browser bawaan, selftest 26/26 |
 | 4 Mode offline dan pembaruan | selesai | 2026-10-15 | `validate.py --http` lolos tanpa peringatan; uji service worker sungguhan menunggu checkpoint di Chrome |
-| 5 Uji lokal lengkap | belum | | |
+| 5 Uji lokal lengkap | selesai | 2026-10-15 | tinjauan Lampiran A + cek kontras, 5 perbaikan, siap rilis 1.0.0 |
 | 6 Publikasi GitHub Pages | belum | | |
 | 7 Pasang di HP | belum | | Dikerjakan pengguna |
 
@@ -102,4 +102,18 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
     menunjukkan file berubah tanpa isi yang berbeda, jalankan `git add` atau ubah akhir baris kembali ke LF.
   - Mulai sekarang Chrome menyajikan aplikasi dari cache. Saat menguji perubahan di laptop, centang
     DevTools → Application → Service workers → **Update on reload**, atau naikkan versi.
-- Langkah berikutnya: Fase 5 (uji lokal lengkap).
+- Fase 5 (tinjauan kode terhadap seluruh Lampiran A dan cek kontras semua pasangan warna):
+  1. Ketukan ganda cepat pada Lihat hasil/Selesai bisa memicu error setelah sesi selesai. Semua aksi
+     layar soal dan Akhiri kini mengecek `active` dulu.
+  2. Pengatur waktu simulasi juga berjalan di Beranda: sisa waktu di kartu "Lanjutkan sesi" hidup
+     (`[data-timer]`), dan sesi selesai sendiri bila waktu habis.
+  3. Input file impor tanpa atribut `accept`, karena di Android file .json dari Drive/WhatsApp bisa
+     tidak bisa dipilih. Isi file tetap divalidasi.
+  4. `.container` memakai `env(safe-area-inset-*)` untuk mode edge-to-edge Chrome Android saat aplikasi
+     terpasang.
+  5. Kontras tema terang: label "Terbaik" (4,42:1) dan skor 2 oranye di kalimat umpan balik (4,48:1).
+     Sekarang "Terbaik" berlatar hijau penuh dan skor di umpan balik memakai lencana. Semua pasangan
+     lain lolos 4,5:1 di kedua tema. Warna §1.7 tidak diubah.
+  - Perbaikan tetap di versi 1.0.0 karena aplikasi belum pernah diterbitkan.
+- Langkah berikutnya: Fase 6 (publikasi GitHub Pages). Setelah rilis pertama, setiap perubahan file yang
+  di-cache wajib diikuti `py tools/bump_version.py patch` sebelum push.
