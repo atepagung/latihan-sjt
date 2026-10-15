@@ -118,6 +118,42 @@ export function createSession({ mode, ids, shuffleOptions = true, now = Date.now
   };
 }
 
+// Jumlah soal yang sudah diberi jawaban di sesi aktif
+export function answeredCount(session) {
+  return session.ids.filter((id) => session.answers[id]).length;
+}
+
+// Sisa waktu simulasi dalam detik (dibulatkan ke atas, tidak pernah negatif). null bila tanpa batas waktu.
+export function remainingSeconds(deadline, now = Date.now()) {
+  if (!deadline) return null;
+  return Math.max(0, Math.ceil((deadline - now) / 1000));
+}
+
+// Mengubah sesi aktif menjadi hasil sesi untuk riwayat (bentuk "sessions" di PLAYBOOK §1.6).
+// Simulasi: semua soal dinilai, yang kosong bernilai 0.
+// Mode latihan: hanya soal yang sudah dijawab, karena sesi boleh diakhiri sebelum soal habis.
+export function finishSession(session, questionsById, now = Date.now()) {
+  const isSimulation = session.mode === 'simulasi';
+  const ids = isSimulation ? session.ids : session.ids.filter((id) => session.answers[id]);
+  const items = ids
+    .filter((id) => questionsById.has(id))
+    .map((id) => {
+      const kode = session.answers[id] || null;
+      return { id, kode, skor: scoreOf(questionsById.get(id), kode) };
+    });
+  const total = items.reduce((sum, item) => sum + item.skor, 0);
+  return {
+    id: session.id,
+    mode: session.mode,
+    startedAt: session.startedAt,
+    // Bila waktu simulasi sudah lewat (misalnya aplikasi baru dibuka lagi), selesai dihitung di batas waktu
+    finishedAt: session.deadline ? Math.min(now, session.deadline) : now,
+    items,
+    total,
+    max: items.length * MAX_SCORE,
+  };
+}
+
 // ---------- Skor dan ringkasan ----------
 
 // Bobot opsi yang dipilih, atau 0 bila belum dijawab (soal simulasi yang kosong).

@@ -4,14 +4,17 @@
 // Semua pengacakan memakai rng berbibit tetap, jadi hasilnya sama setiap kali dijalankan.
 import {
   OPTION_CODES,
+  answeredCount,
   buildPool,
   competencyKey,
   createSession,
+  finishSession,
   latestStats,
   normalizeProgress,
   percent,
   pickIds,
   pickQuick,
+  remainingSeconds,
   scoreOf,
   shuffle,
   summarize,
@@ -200,6 +203,43 @@ test('createSession tanpa acak opsi memakai urutan asli A, B, C, D', () => {
   const session = createSession({ mode: 'latihan', ids: ['KMK-001', 'KMK-002'], shuffleOptions: false, now: 1 });
   assertEqual(session.optionOrder['KMK-001'], OPTION_CODES);
   assertEqual(session.optionOrder['KMK-002'], OPTION_CODES);
+});
+
+// ---------- Menyelesaikan sesi ----------
+
+function sampleSession(mode, answers) {
+  const session = createSession({ mode, ids: ['KMK-001', 'KMK-002', 'MNJ-001'], now: 1000, rng: seededRng(11) });
+  session.answers = answers;
+  return session;
+}
+
+test('finishSession simulasi: semua soal dinilai, soal kosong bernilai 0', () => {
+  const session = sampleSession('simulasi', { 'KMK-001': 'B', 'KMK-002': 'B' });
+  const result = finishSession(session, BY_ID, 5000);
+  assertEqual(result.items.map((i) => [i.id, i.kode, i.skor]), [
+    ['KMK-001', 'B', 4], ['KMK-002', 'B', 3], ['MNJ-001', null, 0],
+  ], 'items');
+  assertEqual([result.total, result.max, result.finishedAt], [7, 12, 5000], 'total, max, selesai');
+  assertEqual(answeredCount(session), 2, 'jumlah dijawab');
+});
+
+test('finishSession latihan: hanya soal yang dijawab yang dihitung', () => {
+  const session = sampleSession('latihan', { 'MNJ-001': 'C' });
+  const result = finishSession(session, BY_ID, 5000);
+  assertEqual(result.items, [{ id: 'MNJ-001', kode: 'C', skor: 4 }], 'items');
+  assertEqual([result.total, result.max, result.mode, result.id], [4, 4, 'latihan', 's-1000'], 'ringkasan');
+});
+
+test('finishSession: waktu selesai simulasi tidak melewati batas waktu', () => {
+  const session = sampleSession('simulasi', {});
+  const late = session.deadline + 600_000;
+  assertEqual(finishSession(session, BY_ID, late).finishedAt, session.deadline);
+});
+
+test('remainingSeconds dibulatkan ke atas, tidak negatif, null tanpa batas waktu', () => {
+  assertEqual(remainingSeconds(10_000, 8_500), 2, 'sisa 1,5 detik');
+  assertEqual(remainingSeconds(10_000, 20_000), 0, 'lewat');
+  assertEqual(remainingSeconds(null, 0), null, 'tanpa batas');
 });
 
 // ---------- summarize dan latestStats ----------

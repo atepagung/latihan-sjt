@@ -53,6 +53,39 @@ export function confirmDialog({ title, message, confirmText = 'Ya', cancelText =
   });
 }
 
+// Dialog berisi konten bebas dengan satu tombol Tutup, misalnya grid Daftar soal.
+// Elemen di dalam content yang diberi atribut autofocus akan mendapat fokus awal.
+export function showDialog({ title, content, closeText = 'Tutup' }) {
+  const dialog = document.getElementById('dialog');
+  dialog.replaceChildren(el('form', { method: 'dialog' },
+    el('h2', { id: 'dialog-title' }, title),
+    content,
+    el('div', { class: 'dialog-actions' },
+      el('button', { type: 'submit', value: 'close', class: 'btn btn-secondary' }, closeText),
+    ),
+  ));
+  dialog.returnValue = '';
+  dialog.showModal();
+}
+
+// Menutup dialog yang sedang terbuka (misalnya saat waktu simulasi habis).
+// Dialog konfirmasi yang ditutup dengan cara ini dianggap dibatalkan.
+export function closeDialog() {
+  const dialog = document.getElementById('dialog');
+  if (dialog && dialog.open) dialog.close();
+}
+
+// Membacakan teks lewat pembaca layar tanpa menampilkannya, melalui wadah aria-live di index.html.
+// Dikosongkan dulu supaya teks yang sama tetap dibacakan ulang.
+export function announce(text) {
+  const region = document.getElementById('announcer');
+  if (!region) return;
+  region.textContent = '';
+  setTimeout(() => {
+    region.textContent = text;
+  }, 50);
+}
+
 // Mengubah jumlah detik menjadi teks mm:ss, atau j:mm:ss bila satu jam atau lebih.
 export function formatDuration(seconds) {
   const total = Math.max(0, Math.floor(seconds));

@@ -7,7 +7,7 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 | 0 Persiapan | selesai | 2026-10-15 | validate lolos (151 soal), repo git lokal `main` dibuat |
 | 1 Kerangka, tema, manifest | selesai | 2026-10-15 | semua rute bisa dibuka, tema dan ukuran teks tersimpan, manifest valid |
 | 2 Data, skor, penyimpanan, selftest | selesai | 2026-10-15 | selftest 22/22 PASS (browser dan Node), Beranda 151 soal (KMK 36, AKH 50, MNJ 56, SK 9) |
-| 3 Layar dan alur lengkap | belum | | |
+| 3 Layar dan alur lengkap | selesai | 2026-10-15 | semua layar dan alur jalan, Lampiran A Fungsi dan Tampilan diuji di browser bawaan, selftest 26/26 |
 | 4 Mode offline dan pembaruan | belum | | |
 | 5 Uji lokal lengkap | belum | | |
 | 6 Publikasi GitHub Pages | belum | | |
@@ -61,4 +61,27 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
   - `resetProgress()` mempertahankan pengaturan tampilan.
   - `requestPersist()` sudah ada, tetapi baru dipanggil di Fase 4.
   - Urutan `sessions` dan riwayat `attempts` per soal: terlama di depan, terbaru di belakang.
-- Langkah berikutnya: Fase 3 (layar dan alur lengkap).
+- Fase 3:
+  - Layar dipecah ke `js/views/` (`common`, `home`, `setup`, `session`, `result`, `stats`, `settings`).
+    `js/views.js` hanya meneruskan (re-export). Di Fase 4 semua file ini wajib masuk `APP_SHELL`.
+  - Fungsi baru di `quiz.js`: `answeredCount`, `remainingSeconds`, `finishSession`.
+  - Fungsi baru di `ui.js`: `showDialog`, `closeDialog`, `announce`.
+  - `index.html` mendapat `<div id="announcer" aria-live="polite">` untuk pengumuman skor dan peringatan
+    waktu.
+  - Keputusan desain:
+    - Mulai sesi baru saat ada sesi aktif: muncul dialog, lalu sesi lama diakhiri dan dinilai.
+    - Tombol Akhiri di Beranda: muncul dialog, lalu Hasil tampil. Sesi tanpa jawaban sama sekali dibuang
+      tanpa hasil.
+    - Hasil mode latihan/ulangi/ditandai hanya berisi soal yang dijawab. Simulasi berisi semua soal
+      (yang kosong bernilai 0).
+    - Tombol Ditandai nonaktif bila 0. "Latihan ulang soal yang belum terbaik" membuat sesi mode `latihan`.
+    - Simulasi yang batas waktunya lewat (aplikasi ditutup atau sedang di layar lain) langsung
+      diselesaikan saat router berjalan atau saat aplikasi terlihat lagi.
+    - Pengumuman waktu dibacakan saat melewati batas 5 dan 1 menit, berisi sisa menit sebenarnya.
+    - Di layar soal latihan, bar bawah berisi Beranda dan Lanjut. Di simulasi berisi Sebelumnya dan
+      Berikutnya (di soal terakhir: Selesai); Daftar soal dan Selesai ada di bagian atas.
+  - `app.js` sekarang sekitar 520 baris. Bila bertambah banyak di fase berikutnya, alur sesi bisa
+    dipindah ke file sendiri.
+  - Catatan uji: di browser bawaan Claude Code yang tersembunyi, event `close` dialog baru jalan setelah
+    frame digambar. Ini bukan bug aplikasi.
+- Langkah berikutnya: Fase 4 (mode offline dan pembaruan).
