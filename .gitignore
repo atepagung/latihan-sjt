@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Pengaturan lokal Claude Code dan editor
+.claude/settings.local.json
+CLAUDE.local.md
+.vscode/
+
+# File ekspor progres yang tidak sengaja tersimpan di folder proyek
+sjt-progres-*.json
