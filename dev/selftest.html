@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Selftest Latihan SJT</title>
+  <style>
+    body {
+      margin: 0 auto;
+      max-width: 720px;
+      padding: 16px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      line-height: 1.5;
+      background: #F7F8FA;
+      color: #1B1F24;
+    }
+    #summary { font-size: 1.2rem; font-weight: 700; }
+    .all-pass { color: #1B7F3B; }
+    .has-fail { color: #B3261E; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 8px 0; border-bottom: 1px solid #DDE1E6; }
+    .tag { display: inline-block; min-width: 3.5em; font-weight: 700; }
+    .pass .tag { color: #1B7F3B; }
+    .fail .tag { color: #B3261E; }
+    .message { display: block; margin-left: 3.5em; color: #B3261E; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Selftest quiz.js</h1>
+  <p id="summary">Menjalankan pengujian…</p>
+  <ul id="results"></ul>
+
+  <script type="module">
+    // Hasil pengujian dari selftest.mjs ditampilkan sebagai daftar PASS/FAIL
+    import { runTests } from './selftest.mjs';
+
+    const results = runTests();
+    const list = document.getElementById('results');
+    for (const r of results) {
+      const item = document.createElement('li');
+      item.className = r.ok ? 'pass' : 'fail';
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = r.ok ? 'PASS' : 'FAIL';
+      item.append(tag, r.name);
+      if (!r.ok) {
+        const message = document.createElement('span');
+        message.className = 'message';
+        message.textContent = r.message;
+        item.append(message);
+      }
+      list.append(item);
+    }
+    const failed = results.filter((r) => !r.ok).length;
+    const summary = document.getElementById('summary');
+    summary.textContent = `${results.length - failed} lolos, ${failed} gagal`;
+    summary.className = failed === 0 ? 'all-pass' : 'has-fail';
+  </script>
+</body>
+</html>

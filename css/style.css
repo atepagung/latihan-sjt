@@ -309,6 +309,91 @@ textarea {
   transform: scale(0.99);
 }
 
+/* ---------- Progres dan angka ringkas ---------- */
+.progress {
+  height: 10px;
+  margin: 8px 0 16px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width 0.3s;
+}
+
+.progress-count {
+  margin: 0;
+}
+
+.progress-count strong {
+  font-size: 1.4rem;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Daftar kategori di Beranda: kode, nama, jumlah soal */
+.category-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.category-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-list li:last-child {
+  border-bottom: 0;
+}
+
+/* Lebar chip disamakan supaya nama kategori sejajar */
+.category-list .chip {
+  min-width: 56px;
+  justify-content: center;
+}
+
+.category-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.category-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 /* ---------- Chip ---------- */
 .chip {
   display: inline-flex;

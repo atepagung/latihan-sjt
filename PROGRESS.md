@@ -6,7 +6,7 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 |---|---|---|---|
 | 0 Persiapan | selesai | 2026-10-15 | validate lolos (151 soal), repo git lokal `main` dibuat |
 | 1 Kerangka, tema, manifest | selesai | 2026-10-15 | semua rute bisa dibuka, tema dan ukuran teks tersimpan, manifest valid |
-| 2 Data, skor, penyimpanan, selftest | belum | | |
+| 2 Data, skor, penyimpanan, selftest | selesai | 2026-10-15 | selftest 22/22 PASS (browser dan Node), Beranda 151 soal (KMK 36, AKH 50, MNJ 56, SK 9) |
 | 3 Layar dan alur lengkap | belum | | |
 | 4 Mode offline dan pembaruan | belum | | |
 | 5 Uji lokal lengkap | belum | | |
@@ -43,4 +43,22 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
   - Beranda sementara berisi tautan ke semua layar, termasuk contoh `#/sesi` dan `#/hasil/contoh`.
   - `.claude/launch.json` berisi konfigurasi server `serve` (`py tools/serve.py 8080`) untuk browser bawaan
     Claude Code.
-- Langkah berikutnya: Fase 2 (data, skor, penyimpanan, selftest).
+- Fase 2:
+  - Nama kompetensi bisa sama di dua kategori (Integritas di KMK dan MNJ). Kompetensi selalu dikenali dari
+    `competencyKey(kategori, kompetensi)` = `"KMK|Integritas"`, baik di filter maupun ringkasan.
+  - Fungsi tambahan di `quiz.js`:
+    - `percent`, `competencyKey`
+    - `pickIds(pool, count, rng)`: ambil N teratas lalu acak
+    - `pickQuick(ids, byId, rng, limit)`: untuk Ulangi/Ditandai
+    - `emptyProgress`, `normalizeProgress(obj, knownIds)`: merapikan data dari localStorage atau impor
+  - `buildPool` menerima parameter ke-4 `rng`.
+  - Konstanta baru di `config.js`: `QUICK_SESSION_LIMIT = 30` dan `DEFAULT_SETTINGS`.
+  - `store.load()` hanya menganggap data rusak bila JSON gagal dibaca atau bukan objek. Data Fase 1 yang
+    hanya berisi settings tetap terbaca. `load()` mengembalikan `{ recovered }`, lalu `app.js` yang
+    menampilkan toast.
+  - Impor dibagi dua: `readProgressFile(text)` untuk memeriksa (dipakai sebelum dialog konfirmasi), lalu
+    `importProgress(text, knownIds)` untuk mengganti seluruh isi, termasuk settings dari file.
+  - `resetProgress()` mempertahankan pengaturan tampilan.
+  - `requestPersist()` sudah ada, tetapi baru dipanggil di Fase 4.
+  - Urutan `sessions` dan riwayat `attempts` per soal: terlama di depan, terbaru di belakang.
+- Langkah berikutnya: Fase 3 (layar dan alur lengkap).

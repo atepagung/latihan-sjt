@@ -1,44 +1,22 @@
-// Titik masuk aplikasi: menerapkan pengaturan tampilan dan mengatur pindah layar lewat hash (#/...).
-// Hash dipakai karena tombol kembali Android tetap berfungsi dan aplikasi bisa jalan di subfolder.
-import { APP_VERSION, STORAGE_KEY } from './config.js';
+// Titik masuk aplikasi: memuat progres dan bank soal, menerapkan tampilan, dan mengatur pindah layar
+// lewat hash (#/...). Hash dipakai karena tombol kembali Android tetap berfungsi dan aplikasi bisa
+// jalan di subfolder GitHub Pages.
+import { APP_VERSION } from './config.js';
+import { loadBank } from './data.js';
+import { latestStats } from './quiz.js';
+import * as store from './store.js';
 import { showToast } from './ui.js';
 import * as views from './views.js';
-
-const DEFAULT_SETTINGS = { theme: 'system', textSize: 'normal', shuffleOptions: true };
 
 // Warna bilah status HP untuk tiap tema, sama dengan meta theme-color di index.html
 const THEME_COLORS = { light: '#0F4C81', dark: '#171C22' };
 
 const app = document.getElementById('app');
 
-// ---------- Pengaturan (sementara) ----------
-// Fase 1 membaca dan menulis localStorage langsung. Di Fase 2 bagian ini dipindah ke store.js.
+// Bank soal yang sudah dimuat (lihat data.js). Diisi sekali saat aplikasi dibuka.
+let bank = null;
 
-function readStored() {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return data && typeof data === 'object' ? data : {};
-  } catch {
-    return {};
-  }
-}
-
-function readSettings() {
-  return { ...DEFAULT_SETTINGS, ...readStored().settings };
-}
-
-// Hanya bagian settings yang diubah; isi lain di kunci yang sama (progres, sesi) dibiarkan.
-function saveSettings(patch) {
-  const data = readStored();
-  data.schema = data.schema || 1;
-  data.settings = { ...DEFAULT_SETTINGS, ...data.settings, ...patch };
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    showToast('Pengaturan gagal disimpan di perangkat ini.');
-  }
-  return data.settings;
-}
+// ---------- Tampilan ----------
 
 // Atribut di <html> yang dibaca CSS. "Ikuti sistem" berarti atributnya dilepas.
 function applySettings(settings) {
@@ -63,15 +41,21 @@ function applySettings(settings) {
 }
 
 function handleSettingsChange(patch) {
-  applySettings(saveSettings(patch));
+  applySettings(store.updateSettings(patch));
   showToast('Pengaturan disimpan');
 }
 
 // ---------- Router ----------
+
+function homeView() {
+  const { attempts } = store.getState();
+  return views.renderHome({ version: APP_VERSION, bank, stats: latestStats(attempts, bank.byId) });
+}
+
 // Setiap rute: pola path dan fungsi yang membuat layarnya. Bagian dalam kurung pada pola
 // (misalnya id sesi) diteruskan sebagai argumen.
 const routes = [
-  { pattern: /^\/$/, render: () => views.renderHome({ version: APP_VERSION }) },
+  { pattern: /^\/$/, render: homeView },
   { pattern: /^\/mulai\/latihan$/, render: () => views.renderPlaceholder('Atur latihan') },
   { pattern: /^\/mulai\/simulasi$/, render: () => views.renderPlaceholder('Atur simulasi') },
   { pattern: /^\/sesi$/, render: () => views.renderPlaceholder('Mengerjakan soal') },
@@ -79,7 +63,11 @@ const routes = [
   { pattern: /^\/statistik$/, render: () => views.renderPlaceholder('Statistik') },
   {
     pattern: /^\/pengaturan$/,
-    render: () => views.renderSettings({ settings: readSettings(), version: APP_VERSION, onChange: handleSettingsChange }),
+    render: () => views.renderSettings({
+      settings: store.getState().settings,
+      version: APP_VERSION,
+      onChange: handleSettingsChange,
+    }),
   },
 ];
 
@@ -111,8 +99,23 @@ function router() {
   location.replace('#/');
 }
 
-function init() {
-  applySettings(readSettings());
+// ---------- Mulai ----------
+
+async function init() {
+  const { recovered } = store.load();
+  applySettings(store.getState().settings);
+
+  try {
+    bank = await loadBank();
+  } catch (error) {
+    console.error(error);
+    showView(views.renderLoadError());
+    return;
+  }
+
+  if (recovered) {
+    showToast('Data progres rusak dan tidak bisa dibaca. Aplikasi mulai dari awal.', 6000);
+  }
   window.addEventListener('hashchange', router);
   router();
 }
