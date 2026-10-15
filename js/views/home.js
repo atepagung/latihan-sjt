@@ -3,6 +3,14 @@ import { remainingSeconds } from '../quiz.js';
 import { el, formatDuration } from '../ui.js';
 import { MODE_LABELS, progressBar, screenHeader, stat } from './common.js';
 
+// Chip status di bawah judul. Dikosongkan sampai service worker siap; app.js menggantinya saat status berubah.
+export function renderStatusChips(status) {
+  return el('div', { class: 'chip-row status-chips', 'data-status-chips': '' },
+    status.offlineReady ? el('span', { class: 'chip chip-ok' }, 'Siap offline') : null,
+    status.online ? null : el('span', { class: 'chip chip-warn' }, 'Sedang offline'),
+  );
+}
+
 function activeCard(active, { onResume, onEndActive }) {
   const total = active.ids.length;
   const left = remainingSeconds(active.deadline);
@@ -73,9 +81,11 @@ function categoryCard(bank) {
   );
 }
 
-export function renderHome({ version, bank, stats, active, bookmarkCount, handlers }) {
+export function renderHome({ version, bank, stats, active, bookmarkCount, status, handlers }) {
+  const header = screenHeader('Latihan SJT ASN', 'Situational Judgement Test, bisa dipakai offline');
+  header.append(renderStatusChips(status));
   return el('div', { class: 'stack' },
-    screenHeader('Latihan SJT ASN', 'Situational Judgement Test, bisa dipakai offline'),
+    header,
     active ? activeCard(active, handlers) : null,
     progressCard(bank, stats),
     modeButtons({

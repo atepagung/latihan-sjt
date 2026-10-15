@@ -418,6 +418,48 @@ textarea {
   font-weight: 600;
 }
 
+/* Chip status di Beranda: titik berwarna + tulisan, jadi tidak hanya mengandalkan warna */
+.status-chips {
+  margin-top: 10px;
+}
+
+.status-chips:empty {
+  display: none;
+}
+
+.chip-ok,
+.chip-warn {
+  color: var(--text);
+}
+
+.chip-ok::before,
+.chip-warn::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.chip-ok {
+  border-color: var(--score-4);
+}
+
+.chip-ok::before {
+  background: var(--score-4);
+}
+
+.chip-warn {
+  border-color: var(--score-2);
+}
+
+.chip-warn::before {
+  background: var(--score-2);
+}
+
+.info-note {
+  margin: 8px 0 0;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;

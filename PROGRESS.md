@@ -8,7 +8,7 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
 | 1 Kerangka, tema, manifest | selesai | 2026-10-15 | semua rute bisa dibuka, tema dan ukuran teks tersimpan, manifest valid |
 | 2 Data, skor, penyimpanan, selftest | selesai | 2026-10-15 | selftest 22/22 PASS (browser dan Node), Beranda 151 soal (KMK 36, AKH 50, MNJ 56, SK 9) |
 | 3 Layar dan alur lengkap | selesai | 2026-10-15 | semua layar dan alur jalan, Lampiran A Fungsi dan Tampilan diuji di browser bawaan, selftest 26/26 |
-| 4 Mode offline dan pembaruan | belum | | |
+| 4 Mode offline dan pembaruan | selesai | 2026-10-15 | `validate.py --http` lolos tanpa peringatan; uji service worker sungguhan menunggu checkpoint di Chrome |
 | 5 Uji lokal lengkap | belum | | |
 | 6 Publikasi GitHub Pages | belum | | |
 | 7 Pasang di HP | belum | | Dikerjakan pengguna |
@@ -84,4 +84,22 @@ Diperbarui oleh Claude Code di setiap akhir fase. Sesi baru membaca file ini leb
     dipindah ke file sendiri.
   - Catatan uji: di browser bawaan Claude Code yang tersembunyi, event `close` dialog baru jalan setelah
     frame digambar. Ini bukan bug aplikasi.
-- Langkah berikutnya: Fase 4 (mode offline dan pembaruan).
+- Perbaikan setelah Fase 3: tombol tandai soal diganti menjadi pill berlabel Tandai/Ditandai dengan ikon
+  SVG. Warna aktif memakai variabel `--bookmark-*` untuk tema terang dan gelap.
+- Fase 4:
+  - `sw.js` disalin dari §1.9. `APP_SHELL` berisi 23 entri, termasuk 7 file `js/views/*.js` dan `js/pwa.js`.
+    `js/pwa.js` disalin apa adanya.
+  - `app.js` punya objek `deviceStatus` `{ offlineReady, online, persisted }`. `updateStatusUI()` hanya
+    mengganti `[data-status-chips]` (Beranda) dan `[data-status-info]` (Pengaturan), tidak seluruh layar.
+  - `setupPwa` dipanggil setelah layar pertama tampil, juga di layar galat muat soal.
+    `store.requestPersist()` dipanggil setiap kali bank soal berhasil dimuat.
+  - Chip tidak tampil sebelum service worker siap. "Siap offline" dan "Sedang offline" bisa tampil bersamaan.
+  - Browser bawaan Claude Code (panel Electron) tidak bisa mendaftarkan service worker ("unknown error
+    when fetching the script"), walau `sw.js` tersaji benar. Uji service worker, offline, dan banner
+    pembaruan harus dilakukan di Chrome. Langkah install sudah diuji manual: 23 file berhasil masuk cache.
+  - `tools/bump_version.py` (dan skrip Python lain yang memakai `write_text`) menulis akhir baris CRLF
+    di Windows. Git menormalkannya ke LF saat commit (`core.autocrlf=input`), jadi aman. Bila git status
+    menunjukkan file berubah tanpa isi yang berbeda, jalankan `git add` atau ubah akhir baris kembali ke LF.
+  - Mulai sekarang Chrome menyajikan aplikasi dari cache. Saat menguji perubahan di laptop, centang
+    DevTools → Application → Service workers → **Update on reload**, atau naikkan versi.
+- Langkah berikutnya: Fase 5 (uji lokal lengkap).

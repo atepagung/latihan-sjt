@@ -7,6 +7,7 @@ import {
   MAX_SCORE, answeredCount, buildPool, createSession, finishSession, latestStats, pickIds, pickQuick,
   remainingSeconds, scoreOf, shuffle,
 } from './quiz.js';
+import { setupPwa } from './pwa.js';
 import * as store from './store.js';
 import { announce, closeDialog, confirmDialog, formatDuration, showDialog, showToast } from './ui.js';
 import * as views from './views.js';
@@ -25,6 +26,9 @@ let bank = null;
 // Pengatur waktu simulasi yang sedang berjalan, dan peringatan yang sudah dibacakan untuk sesi ini
 let timerId = null;
 let warned = { sessionId: null, levels: new Set() };
+
+// Status perangkat untuk chip di Beranda dan bagian Info di Pengaturan
+const deviceStatus = { offlineReady: false, online: navigator.onLine, persisted: false };
 
 // ---------- Tampilan ----------
 
@@ -397,6 +401,48 @@ async function handleReset() {
   router();
 }
 
+// ---------- Offline, pembaruan, dan penyimpanan persisten ----------
+
+// Hanya bagian status yang diganti, bukan seluruh layar, supaya fokus dan posisi gulir tidak hilang
+function updateStatusUI() {
+  const chips = app.querySelector('[data-status-chips]');
+  if (chips) chips.replaceWith(views.renderStatusChips(deviceStatus));
+  const info = app.querySelector('[data-status-info]');
+  if (info) info.replaceWith(views.renderStatusInfo(deviceStatus));
+}
+
+// Banner "Versi baru tersedia". accept() meminta service worker baru aktif, lalu halaman dimuat ulang.
+function showUpdateBanner(accept) {
+  const banner = document.getElementById('update-banner');
+  const button = banner.querySelector('button');
+  button.disabled = false;
+  // Ditulis lewat onclick (bukan addEventListener) supaya tidak menumpuk bila banner ditawarkan dua kali
+  button.onclick = () => {
+    button.disabled = true;
+    accept();
+  };
+  banner.hidden = false;
+  announce('Versi baru tersedia');
+}
+
+function setupDeviceStatus() {
+  window.addEventListener('online', () => {
+    deviceStatus.online = true;
+    updateStatusUI();
+  });
+  window.addEventListener('offline', () => {
+    deviceStatus.online = false;
+    updateStatusUI();
+  });
+  setupPwa({
+    onOfflineReady: () => {
+      deviceStatus.offlineReady = true;
+      updateStatusUI();
+    },
+    onUpdateReady: showUpdateBanner,
+  }).catch((error) => console.error('Service worker gagal didaftarkan', error));
+}
+
 // ---------- Router ----------
 // Setiap rute: pola path dan fungsi yang menampilkan layarnya. Bagian dalam kurung pada pola
 // (misalnya id sesi) diteruskan sebagai argumen.
@@ -409,6 +455,7 @@ function showHome() {
     stats: latestStats(state.attempts, bank.byId),
     active: state.active,
     bookmarkCount: state.bookmarks.filter((id) => bank.byId.has(id)).length,
+    status: deviceStatus,
     handlers: {
       onResume: () => navigate('#/sesi'),
       onEndActive: endActiveFromHome,
@@ -460,6 +507,7 @@ const routes = [
       settings: store.getState().settings,
       version: APP_VERSION,
       bank,
+      status: deviceStatus,
       handlers: {
         onChange: handleSettingsChange,
         onExport: handleExport,
@@ -500,8 +548,17 @@ async function init() {
   } catch (error) {
     console.error(error);
     showView(views.renderLoadError());
+    // Tetap didaftarkan: bila gagalnya hanya sesaat, file aplikasi tetap tersimpan untuk dibuka offline
+    setupDeviceStatus();
     return;
   }
+
+  // Minta Chrome tidak menghapus progres saat memori HP penuh. Diulang setiap kali aplikasi dibuka,
+  // karena biasanya baru dikabulkan setelah aplikasi dipasang.
+  store.requestPersist().then((persisted) => {
+    deviceStatus.persisted = persisted;
+    updateStatusUI();
+  });
 
   if (recovered) {
     showToast('Data progres rusak dan tidak bisa dibaca. Aplikasi mulai dari awal.', 6000);
@@ -513,6 +570,8 @@ async function init() {
     if (!handleExpiredSimulation() && timerId !== null) tick();
   });
   router();
+  // Service worker didaftarkan setelah layar pertama tampil, supaya tidak memperlambat pembukaan
+  setupDeviceStatus();
 }
 
 init();

@@ -9,7 +9,18 @@ function infoRow(label, value) {
   );
 }
 
-export function renderSettings({ settings, version, bank, handlers }) {
+// Status penyimpanan persisten dan kesiapan offline. app.js menggantinya saat status berubah.
+export function renderStatusInfo(status) {
+  return el('div', { 'data-status-info': '' },
+    infoRow('Penyimpanan persisten', status.persisted ? 'Aktif' : 'Tidak aktif'),
+    infoRow('Status offline', status.offlineReady ? 'Siap' : 'Belum siap'),
+    status.persisted
+      ? null
+      : el('p', { class: 'muted small info-note' }, 'Penyimpanan persisten biasanya baru aktif setelah aplikasi dipasang di HP.'),
+  );
+}
+
+export function renderSettings({ settings, version, bank, status, handlers }) {
   // Input file disembunyikan; tombol "Impor progres" yang membukanya supaya tampilannya seragam
   const fileInput = el('input', {
     type: 'file',
@@ -67,6 +78,7 @@ export function renderSettings({ settings, version, bank, handlers }) {
     section('Info', el('div', { class: 'card' },
       infoRow('Versi aplikasi', version),
       infoRow('Bank soal', `versi ${bank.meta.versi}, ${bank.meta.jumlah} soal`),
+      renderStatusInfo(status),
     )),
 
     section('Tentang', el('div', { class: 'card' }, el('p', {}, DISCLAIMER))),
